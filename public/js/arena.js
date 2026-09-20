@@ -106,7 +106,7 @@ function onMessage(event) {
     rematchBtn.dataset.mode = 'accept';
   }
   if (msg.type === 'NEW_GAME_WAITING') {
-    modalFoot.textContent = 'Aguardando resposta do oponente via WebSocket...';
+    modalFoot.textContent = 'Aguardando resposta do oponente...';
     rematchBtn.disabled = true;
   }
   if (msg.type === 'GAME_OVER') showGameOver(msg);
@@ -210,7 +210,7 @@ function showGameOver(msg) {
   modal.classList.add('show');
   rematchBtn.disabled = false;
   rematchBtn.dataset.mode = 'request';
-  rematchBtn.textContent = 'SOLICITAR REVANCHE [WS]';
+  rematchBtn.textContent = 'SOLICITAR REVANCHE';
 
   let title = 'EMPATE!';
   let resultLine = 'A partida terminou em empate.';

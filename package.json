@@ -1,6 +1,6 @@
 {
   "name": "ws3-tictactoe-websocket",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Jogo da Velha Multiplayer em Tempo Real com Node.js, Express e WebSocket",
   "main": "server.js",
   "type": "commonjs",

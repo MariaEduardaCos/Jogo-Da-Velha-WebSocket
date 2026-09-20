@@ -30,13 +30,14 @@ button { cursor: pointer; }
 }
 
 .server-status { font-size: .78rem; opacity: .95; font-weight: 700; }
+.topbar > * { min-width: 0; overflow-wrap: anywhere; }
 .wrapper { width: min(1180px, calc(100% - 28px)); margin: 28px auto; }
 .grid-lobby { display: grid; grid-template-columns: .9fr 1.1fr; gap: 20px; }
-.card { background: var(--card); border: 1px solid #e5ecea; border-radius: 12px; box-shadow: var(--shadow); padding: 24px; }
+.card { min-width: 0; background: var(--card); border: 1px solid #e5ecea; border-radius: 12px; box-shadow: var(--shadow); padding: 24px; }
 .card h1, .card h2 { margin: 0 0 18px; color: var(--blue); }
 .card h1 { font-size: 1.2rem; }
 .card h2 { font-size: 1.05rem; }
-.section-title { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.section-title { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
 .field { margin: 18px 0; }
 .field label { display: block; font-size: .82rem; margin-bottom: 7px; font-weight: 700; }
 .input { width: 100%; padding: 12px 14px; border: 1px solid #cfd9d6; border-radius: 8px; outline: none; }
@@ -54,7 +55,7 @@ button { cursor: pointer; }
 .room-code-box .input { text-transform: uppercase; letter-spacing: .16em; font-weight: 800; }
 
 .rooms-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-.rooms-table th, .rooms-table td { text-align: left; padding: 12px 8px; border-bottom: 1px solid var(--line); }
+.rooms-table th, .rooms-table td { text-align: left; padding: 12px 8px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
 .rooms-table th { color: var(--muted); font-size: .73rem; text-transform: uppercase; }
 .link-button { border: 0; background: transparent; color: var(--green-2); font-weight: 800; padding: 4px 0; }
 .empty { color: var(--muted); padding: 22px 4px; text-align: center; }
@@ -125,12 +126,15 @@ button { cursor: pointer; }
 .profile-label { display: block; font-size: .72rem; color: var(--muted); text-transform: uppercase; font-weight: 800; margin-bottom: 3px; }
 .profile-record { font-size: .78rem; color: var(--muted); font-weight: 800; text-align: right; }
 .table-scroll { width: 100%; overflow-x: auto; }
-.waiting-card { text-align: center; padding: 34px; }
+.waiting-card { min-width: 0; text-align: center; padding: 34px; overflow: visible; }
 .waiting-icon { font-size: 2.4rem; }
-.waiting-card h1 { color: var(--blue); margin-bottom: 8px; }
-.big-room-code { margin: 18px auto; max-width: 360px; padding: 18px 16px; border: 2px dashed var(--green-2); border-radius: 12px; background: #effaf4; color: var(--green); font-size: clamp(2rem, 10vw, 3.6rem); line-height: 1; letter-spacing: .18em; font-weight: 950; user-select: all; }
-.waiting-pulse { margin: 22px 0 10px; font-weight: 800; color: var(--muted); }
-.waiting-pulse span { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--green-2); margin-right: 7px; animation: pulse 1.2s infinite; }
+.waiting-card h1 { color: var(--blue); margin-bottom: 8px; overflow-wrap: anywhere; }
+.waiting-card p { max-width: 100%; overflow-wrap: anywhere; line-height: 1.5; }
+.waiting-card .btn { max-width: 100%; white-space: normal; line-height: 1.25; }
+.big-room-code { width: min(360px, 100%); margin: 18px auto; padding: 18px 16px; border: 2px dashed var(--green-2); border-radius: 12px; background: #effaf4; color: var(--green); font-size: clamp(2rem, 10vw, 3.6rem); line-height: 1; letter-spacing: .18em; font-weight: 950; user-select: all; overflow-wrap: anywhere; }
+.waiting-pulse { width: 100%; min-width: 0; margin: 22px 0 10px; display: flex; align-items: flex-start; justify-content: center; gap: 8px; font-weight: 800; color: var(--muted); line-height: 1.45; }
+.waiting-dot { flex: 0 0 10px; width: 10px; height: 10px; margin-top: .35em; border-radius: 50%; background: var(--green-2); animation: pulse 1.2s infinite; }
+.waiting-pulse-text { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; text-align: left; }
 @keyframes pulse { 50% { opacity: .25; transform: scale(.8); } }
 .countdown-panel { align-self: center; display: inline-flex; align-items: baseline; gap: 8px; border: 1px solid #cfe7d8; border-radius: 12px; background: #f0faf4; padding: 10px 16px; color: var(--green); font-weight: 800; }
 .countdown-label { font-size: .72rem; letter-spacing: .05em; }
@@ -150,6 +154,8 @@ button { cursor: pointer; }
   .profile-record { text-align: left; }
   .auth-wrapper, .waiting-wrapper { width: min(100% - 18px, 520px); margin: 14px auto 28px; }
   .auth-form, .waiting-card { padding: 20px; }
+  .waiting-pulse { align-items: center; }
+  .waiting-pulse-text { text-align: center; }
   .room-code-box { flex-direction: column; }
   .room-code-box .btn { width: 100%; }
   .arena-layout { gap: 12px; }

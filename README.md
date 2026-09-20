@@ -1,6 +1,6 @@
 # Ws3 — Jogo da Velha Multiplayer com WebSocket
 
-Versão 1.2.0 do projeto da atividade Ws3.
+Versão 1.2.2 do projeto da atividade Ws3.
 
 ## Requisitos
 
@@ -73,9 +73,9 @@ A tolerância de reconexão de 30 segundos continua independente para cada jogad
 
 - Regras e validações executadas no servidor.
 - Tabuleiro 3x3 responsivo.
-- Cronômetro visível de 15 segundos.
+- Cronômetro visível de 15 segundos por jogada, conforme o enunciado da atividade.
 - Se o tempo chegar a zero, nenhuma casa é marcada e a vez passa ao adversário.
-- Fechamento/perda de conexão mostra W.O. provisório ao adversário e mantém a tolerância de 30 segundos para reconexão.
+- Fechamento/perda de conexão mostra W.O. provisório ao adversário e mantém a tolerância de 30 segundos para reconexão. Esses 30 segundos são de desconexão, não de tempo para realizar a jogada.
 - Revanche sem destruir a sala.
 - Placar de sessão.
 
@@ -135,3 +135,11 @@ Para testar localmente:
 4. A segunda conta pode entrar pelo código sem deslogar ou interferir na primeira aba.
 
 O controle antigo que obrigava apenas uma aba ativa por navegador foi removido também no servidor. As conexões WebSocket são autenticadas de forma independente; a separação entre as contas e partidas de cada aba é feita pelo token de autenticação e pelo `sessionStorage` daquela aba.
+
+
+## v1.2.2 — ajustes pontuais de interface
+
+- Removida a marcação `[WS]` dos botões de solicitar revanche.
+- Corrigida a tela de espera de salas públicas e privadas: o indicador animado não interfere mais no texto e as mensagens quebram linha sem ficar escondidas.
+- Mantido o cronômetro de 15 segundos por jogada, porque esse é o tempo especificado nos critérios de aceite da atividade.
+- Mantida separadamente a tolerância de 30 segundos apenas para reconexão após desconexão.
