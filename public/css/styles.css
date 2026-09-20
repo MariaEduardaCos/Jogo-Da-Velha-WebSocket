@@ -1,0 +1,110 @@
+:root {
+  --green: #006b3c;
+  --green-2: #078a52;
+  --blue: #0c4e82;
+  --red: #c92a2a;
+  --bg: #f2f5f4;
+  --card: #ffffff;
+  --text: #23313b;
+  --muted: #6c7882;
+  --line: #d9e1df;
+  --shadow: 0 8px 24px rgba(15, 35, 30, .08);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+button, input { font: inherit; }
+button { cursor: pointer; }
+
+.topbar {
+  min-height: 54px;
+  background: var(--green);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  gap: 16px;
+  font-weight: 800;
+  letter-spacing: .01em;
+}
+
+.server-status { font-size: .78rem; opacity: .95; font-weight: 700; }
+.wrapper { width: min(1180px, calc(100% - 28px)); margin: 28px auto; }
+.grid-lobby { display: grid; grid-template-columns: .9fr 1.1fr; gap: 20px; }
+.card { background: var(--card); border: 1px solid #e5ecea; border-radius: 12px; box-shadow: var(--shadow); padding: 24px; }
+.card h1, .card h2 { margin: 0 0 18px; color: var(--blue); }
+.card h1 { font-size: 1.2rem; }
+.card h2 { font-size: 1.05rem; }
+.section-title { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.field { margin: 18px 0; }
+.field label { display: block; font-size: .82rem; margin-bottom: 7px; font-weight: 700; }
+.input { width: 100%; padding: 12px 14px; border: 1px solid #cfd9d6; border-radius: 8px; outline: none; }
+.input:focus { border-color: var(--green-2); box-shadow: 0 0 0 3px rgba(7, 138, 82, .1); }
+.actions { display: grid; gap: 12px; }
+.btn { border: 0; border-radius: 8px; padding: 13px 16px; color: #fff; font-weight: 800; transition: .15s ease; }
+.btn:hover { transform: translateY(-1px); filter: brightness(.98); }
+.btn-green { background: var(--green-2); }
+.btn-blue { background: var(--blue); }
+.btn-gray { background: #d9dde0; color: #333; }
+.btn-red { background: var(--red); }
+.btn:disabled { cursor: not-allowed; opacity: .55; transform: none; }
+.helper { margin-top: 6px; color: var(--muted); font-size: .78rem; }
+.room-code-box { display: flex; gap: 8px; margin-top: 14px; }
+.room-code-box .input { text-transform: uppercase; letter-spacing: .16em; font-weight: 800; }
+
+.rooms-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.rooms-table th, .rooms-table td { text-align: left; padding: 12px 8px; border-bottom: 1px solid var(--line); }
+.rooms-table th { color: var(--muted); font-size: .73rem; text-transform: uppercase; }
+.link-button { border: 0; background: transparent; color: var(--green-2); font-weight: 800; padding: 4px 0; }
+.empty { color: var(--muted); padding: 22px 4px; text-align: center; }
+
+.arena-layout { display: grid; grid-template-columns: 1.35fr .7fr; gap: 20px; }
+.arena-card { min-height: 630px; display: flex; flex-direction: column; }
+.game-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.score { font-size: .82rem; font-weight: 800; background: rgba(255,255,255,.13); padding: 7px 10px; border-radius: 999px; }
+.board-wrap { flex: 1; display: grid; place-items: center; padding: 28px 0; }
+.board { width: min(390px, 92vw); aspect-ratio: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: #d9dddc; padding: 6px; border-radius: 12px; }
+.cell { border: 0; background: #fff; border-radius: 8px; font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 900; color: var(--blue); display: grid; place-items: center; }
+.cell.o { color: #db2d2d; }
+.cell:disabled { cursor: not-allowed; }
+.cell:not(:disabled):hover { background: #f4fbf7; }
+.cell.win { outline: 4px solid #31a86f; outline-offset: -4px; }
+.turn-banner { margin-top: auto; border-radius: 9px; padding: 13px 14px; text-align: center; font-size: .86rem; font-weight: 900; background: #e8f7ee; color: #09683f; }
+.turn-banner.waiting { background: #eef2f7; color: #44515b; }
+.turn-banner.danger { background: #fdecec; color: #a82020; }
+
+.chat-card { min-height: 630px; display: flex; flex-direction: column; }
+.chat-log { flex: 1; overflow: auto; min-height: 360px; max-height: 500px; padding: 8px 0; }
+.chat-msg { margin: 9px 0; font-size: .86rem; line-height: 1.4; }
+.chat-msg strong { color: var(--blue); }
+.chat-form { display: flex; gap: 8px; }
+.chat-form .input { flex: 1; }
+.chat-form .btn { padding-inline: 15px; }
+
+.notice { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 20; max-width: min(560px, 90vw); background: #fff; border-left: 5px solid var(--blue); box-shadow: var(--shadow); padding: 13px 16px; border-radius: 8px; display: none; }
+.notice.show { display: block; }
+.notice.error { border-left-color: var(--red); }
+.notice.success { border-left-color: var(--green-2); }
+
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.62); display: none; place-items: center; padding: 20px; z-index: 50; }
+.modal-backdrop.show { display: grid; }
+.modal { width: min(480px, 100%); background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 18px 50px rgba(0,0,0,.25); }
+.modal-title { background: var(--green); color: #fff; padding: 18px; text-align: center; font-weight: 900; }
+.modal-body { padding: 22px; }
+.summary { background: #f4f6f5; border: 1px solid #e3e7e5; padding: 16px; border-radius: 9px; line-height: 1.7; font-size: .9rem; }
+.modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+.modal-foot { text-align: center; color: var(--muted); font-size: .75rem; margin-top: 12px; }
+
+.standalone-gameover { min-height: 100vh; display: grid; place-items: center; background: #606060; padding: 20px; }
+
+@media (max-width: 780px) {
+  .topbar { align-items: flex-start; flex-direction: column; padding: 13px 16px; }
+  .wrapper { width: min(100% - 18px, 640px); margin: 10px auto 24px; }
+  .grid-lobby, .arena-layout { grid-template-columns: 1fr; }
+  .card { padding: 18px; }
+  .arena-card, .chat-card { min-height: auto; }
+  .board-wrap { padding: 18px 0; }
+  .chat-log { min-height: 200px; max-height: 280px; }
+  .modal-actions { grid-template-columns: 1fr; }
+}

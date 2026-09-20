@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lobby — Tic-Tac-Toe Multiplayer</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>▦ &nbsp; TIC-TAC-TOE MULTIPLAYER — LOBBY DE SALAS</div>
+    <div id="serverStatus" class="server-status">CONECTANDO...</div>
+  </header>
+  <main class="wrapper grid-lobby">
+    <section class="card">
+      <h1 class="section-title">⚡ PARTIDA RÁPIDA (MATCHMAKING)</h1>
+      <div class="field">
+        <label for="nickname">Seu Apelido de Jogador:</label>
+        <input id="nickname" class="input" maxlength="40" placeholder="João_Gamer" autocomplete="nickname">
+      </div>
+      <div class="actions">
+        <button id="quickMatch" class="btn btn-green">JOGAR AGORA (BUSCAR OPONENTE)</button>
+        <div class="helper" style="text-align:center; margin-top:-7px">Encontra um adversário aleatório online</div>
+        <button id="createRoom" class="btn btn-blue">⊕ CRIAR SALA PRIVADA (COM CÓDIGO)</button>
+      </div>
+      <div class="field">
+        <label for="roomCode">Entrar em sala existente:</label>
+        <div class="room-code-box">
+          <input id="roomCode" class="input" maxlength="6" placeholder="ABC123">
+          <button id="joinRoom" class="btn btn-blue">ENTRAR</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title">🚪 SALAS PÚBLICAS DISPONÍVEIS</h2>
+      <table class="rooms-table">
+        <thead><tr><th>Código</th><th>Host</th><th>Vagas</th><th></th></tr></thead>
+        <tbody id="roomsBody"><tr><td colspan="4" class="empty">Carregando salas...</td></tr></tbody>
+      </table>
+    </section>
+  </main>
+  <div id="notice" class="notice"></div>
+  <script src="/js/common.js"></script>
+  <script src="/js/lobby.js"></script>
+</body>
+</html>

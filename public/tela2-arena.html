@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arena — Jogo da Velha Multiplayer</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="topbar game-header">
+    <div id="roomLabel">SALA — JOGO DA VELHA MULTIPLAYER</div>
+    <div id="scoreLabel" class="score">PLACAR</div>
+  </header>
+  <main class="wrapper arena-layout">
+    <section class="card arena-card">
+      <div class="board-wrap"><div id="board" class="board" aria-label="Tabuleiro 3 por 3"></div></div>
+      <div id="turnBanner" class="turn-banner">Sincronizando partida...</div>
+    </section>
+    <aside class="card chat-card">
+      <h2 class="section-title">▣ CHAT DA PARTIDA</h2>
+      <div id="chatLog" class="chat-log"></div>
+      <form id="chatForm" class="chat-form">
+        <input id="chatInput" class="input" maxlength="500" placeholder="Digite a mensagem..." autocomplete="off">
+        <button class="btn btn-blue" type="submit">Enviar</button>
+      </form>
+    </aside>
+  </main>
+
+  <div id="notice" class="notice"></div>
+  <div id="gameOverModal" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div id="modalTitle" class="modal-title">🏆 VITÓRIA!</div>
+      <div class="modal-body">
+        <div id="summary" class="summary">Resumo da partida.</div>
+        <div class="modal-actions">
+          <button id="rematchBtn" class="btn btn-green">SOLICITAR REVANCHE [WS]</button>
+          <button id="leaveBtn" class="btn btn-gray">VOLTAR AO LOBBY</button>
+        </div>
+        <div id="modalFoot" class="modal-foot">Aguardando sua decisão.</div>
+      </div>
+    </div>
+  </div>
+  <script src="/js/common.js"></script>
+  <script src="/js/arena.js"></script>
+</body>
+</html>
