@@ -1,6 +1,6 @@
 {
   "name": "ws3-tictactoe-websocket",
-  "version": "1.0.1",
+  "version": "1.2.1",
   "description": "Jogo da Velha Multiplayer em Tempo Real com Node.js, Express e WebSocket",
   "main": "server.js",
   "type": "commonjs",
@@ -11,6 +11,7 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "check:sqlite": "node scripts/verify-sqlite.js",
+    "check:ws101": "node scripts/verify-ws101.js",
     "postinstall": "node scripts/verify-sqlite.js"
   },
   "dependencies": {

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aguardando Jogador — Tic-Tac-Toe Multiplayer</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div id="waitingHeader">▦ &nbsp; SALA — AGUARDANDO OPONENTE</div>
+    <div id="waitStatus" class="server-status">CONECTANDO...</div>
+  </header>
+  <main class="waiting-wrapper">
+    <section class="card waiting-card">
+      <div class="waiting-icon">⌛</div>
+      <h1 id="waitingTitle">Sala criada com sucesso</h1>
+      <p id="waitingInstruction">Compartilhe este código com o segundo jogador:</p>
+      <div id="bigRoomCode" class="big-room-code">------</div>
+      <button id="copyCode" class="btn btn-blue">COPIAR CÓDIGO</button>
+      <div class="waiting-pulse"><span></span> <span id="waitingPulseText">Aguardando o companheiro entrar...</span></div>
+      <p class="helper">A partida iniciará automaticamente assim que o segundo jogador entrar na sala.</p>
+      <button id="cancelRoom" class="btn btn-gray">CANCELAR E VOLTAR AO LOBBY</button>
+    </section>
+  </main>
+  <div id="notice" class="notice"></div>
+  <script src="/js/common.js"></script>
+  <script src="/js/waiting.js"></script>
+</body>
+</html>

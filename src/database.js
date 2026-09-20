@@ -1,18 +1,31 @@
 const path = require('path');
+const crypto = require('crypto');
 const Database = require('better-sqlite3');
 
 const dbPath = path.join(__dirname, '..', 'ws3.sqlite');
 const db = new Database(dbPath);
 db.pragma('foreign_keys = ON');
+db.pragma('journal_mode = WAL');
 
 db.exec(`
 CREATE TABLE IF NOT EXISTS jogador (
   id_jogador INTEGER PRIMARY KEY AUTOINCREMENT,
   nickname VARCHAR(40) NOT NULL,
   email VARCHAR(100),
+  senha_hash TEXT,
+  is_guest INTEGER NOT NULL DEFAULT 0,
   vitorias_totais INTEGER NOT NULL DEFAULT 0,
   derrotas_totais INTEGER NOT NULL DEFAULT 0,
   data_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS auth_session (
+  id_sessao INTEGER PRIMARY KEY AUTOINCREMENT,
+  id_jogador INTEGER NOT NULL,
+  token_hash TEXT NOT NULL UNIQUE,
+  criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  expira_em TIMESTAMP NOT NULL,
+  FOREIGN KEY (id_jogador) REFERENCES jogador(id_jogador) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS sala_jogo (
@@ -62,8 +75,31 @@ CREATE TABLE IF NOT EXISTS mensagem_chat (
 );
 `);
 
+// Migrações seguras para bancos criados pelas versões anteriores.
+const jogadorColumns = new Set(db.prepare(`PRAGMA table_info(jogador)`).all().map(c => c.name));
+if (!jogadorColumns.has('senha_hash')) db.exec(`ALTER TABLE jogador ADD COLUMN senha_hash TEXT`);
+if (!jogadorColumns.has('is_guest')) db.exec(`ALTER TABLE jogador ADD COLUMN is_guest INTEGER NOT NULL DEFAULT 0`);
+
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_jogador_email_unique ON jogador(email) WHERE email IS NOT NULL`);
+db.exec(`CREATE INDEX IF NOT EXISTS idx_auth_session_player ON auth_session(id_jogador)`);
+db.exec(`CREATE INDEX IF NOT EXISTS idx_auth_session_expiry ON auth_session(expira_em)`);
+
 const stmts = {
-  createPlayer: db.prepare(`INSERT INTO jogador (nickname) VALUES (?)`),
+  createUser: db.prepare(`INSERT INTO jogador (nickname, email, senha_hash, is_guest) VALUES (?, ?, ?, 0)`),
+  createGuest: db.prepare(`INSERT INTO jogador (nickname, email, senha_hash, is_guest) VALUES (?, NULL, NULL, 1)`),
+  findUserByEmail: db.prepare(`SELECT * FROM jogador WHERE lower(email) = lower(?) AND is_guest = 0`),
+  findUserByNickname: db.prepare(`SELECT * FROM jogador WHERE lower(nickname) = lower(?)`),
+  getUserById: db.prepare(`SELECT id_jogador, nickname, email, is_guest, vitorias_totais, derrotas_totais, data_registro FROM jogador WHERE id_jogador = ?`),
+  createAuthSession: db.prepare(`INSERT INTO auth_session (id_jogador, token_hash, expira_em) VALUES (?, ?, ?)`),
+  getAuthSession: db.prepare(`
+    SELECT s.id_sessao, s.id_jogador, s.expira_em,
+           j.nickname, j.email, j.is_guest, j.vitorias_totais, j.derrotas_totais, j.data_registro
+    FROM auth_session s
+    JOIN jogador j ON j.id_jogador = s.id_jogador
+    WHERE s.token_hash = ? AND datetime(s.expira_em) > datetime('now')
+  `),
+  deleteAuthSession: db.prepare(`DELETE FROM auth_session WHERE token_hash = ?`),
+  deleteExpiredSessions: db.prepare(`DELETE FROM auth_session WHERE datetime(expira_em) <= datetime('now')`),
   createRoom: db.prepare(`INSERT INTO sala_jogo (id_jogador_host, codigo_sala, privada) VALUES (?, ?, ?)`),
   joinRoom: db.prepare(`UPDATE sala_jogo SET id_jogador_visitante = ?, status_sala = 'EM_JOGO' WHERE id_sala = ?`),
   finishRoom: db.prepare(`UPDATE sala_jogo SET status_sala = 'FINALIZADA' WHERE id_sala = ?`),
@@ -76,49 +112,109 @@ const stmts = {
   addLoss: db.prepare(`UPDATE jogador SET derrotas_totais = derrotas_totais + 1 WHERE id_jogador = ?`)
 };
 
-function createPlayer(nickname) {
-  return Number(stmts.createPlayer.run(nickname).lastInsertRowid);
+function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
+  const digest = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${digest}`;
+}
+
+function verifyPassword(password, stored) {
+  if (!stored || !stored.includes(':')) return false;
+  const [salt, expectedHex] = stored.split(':');
+  const actual = crypto.scryptSync(password, salt, 64);
+  const expected = Buffer.from(expectedHex, 'hex');
+  return expected.length === actual.length && crypto.timingSafeEqual(actual, expected);
+}
+
+function tokenHash(token) {
+  return crypto.createHash('sha256').update(String(token)).digest('hex');
+}
+
+function createUser(nickname, email, password) {
+  const cleanNickname = String(nickname || '').trim().slice(0, 40);
+  const cleanEmail = String(email || '').trim().toLowerCase().slice(0, 100);
+  const passwordHash = hashPassword(password);
+  const info = stmts.createUser.run(cleanNickname, cleanEmail, passwordHash);
+  return getUserById(Number(info.lastInsertRowid));
+}
+
+function createGuestUser() {
+  let nickname;
+  do {
+    nickname = `Visitante_${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+  } while (stmts.findUserByNickname.get(nickname));
+  const info = stmts.createGuest.run(nickname);
+  return getUserById(Number(info.lastInsertRowid));
+}
+
+function authenticateUser(email, password) {
+  const row = stmts.findUserByEmail.get(String(email || '').trim().toLowerCase());
+  if (!row || !verifyPassword(String(password || ''), row.senha_hash)) return null;
+  return getUserById(row.id_jogador);
+}
+
+function userExists(nickname, email) {
+  return Boolean(stmts.findUserByEmail.get(String(email || '').trim()) || stmts.findUserByNickname.get(String(nickname || '').trim()));
+}
+
+function getUserById(id) {
+  return stmts.getUserById.get(id) || null;
+}
+
+function createAuthSession(playerId, days = 7) {
+  stmts.deleteExpiredSessions.run();
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiry = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+  stmts.createAuthSession.run(playerId, tokenHash(token), expiry);
+  return { token, expiresAt: expiry };
+}
+
+function getUserByAuthToken(token) {
+  if (!token) return null;
+  const row = stmts.getAuthSession.get(tokenHash(token));
+  if (!row) return null;
+  return {
+    id_jogador: row.id_jogador,
+    nickname: row.nickname,
+    email: row.email,
+    is_guest: Boolean(row.is_guest),
+    vitorias_totais: row.vitorias_totais,
+    derrotas_totais: row.derrotas_totais,
+    data_registro: row.data_registro
+  };
+}
+
+function revokeAuthToken(token) {
+  if (token) stmts.deleteAuthSession.run(tokenHash(token));
 }
 
 function createRoom(hostPlayerId, roomCode, isPrivate) {
   return Number(stmts.createRoom.run(hostPlayerId, roomCode, isPrivate ? 1 : 0).lastInsertRowid);
 }
-
-function joinRoom(roomId, guestPlayerId) {
-  stmts.joinRoom.run(guestPlayerId, roomId);
-}
-
-function finishRoom(roomId) {
-  stmts.finishRoom.run(roomId);
-}
-
+function joinRoom(roomId, guestPlayerId) { stmts.joinRoom.run(guestPlayerId, roomId); }
+function finishRoom(roomId) { stmts.finishRoom.run(roomId); }
 function startGame(roomId, currentTurn, hostScore, guestScore) {
   return Number(stmts.startGame.run(roomId, currentTurn, hostScore, guestScore).lastInsertRowid);
 }
-
-function updateGameTurn(gameId, currentTurn) {
-  stmts.updateGameTurn.run(currentTurn, gameId);
-}
-
+function updateGameTurn(gameId, currentTurn) { stmts.updateGameTurn.run(currentTurn, gameId); }
 function finishGame(gameId, winnerPlayerId, result, hostScore, guestScore) {
   stmts.finishGame.run(winnerPlayerId || null, result, hostScore, guestScore, gameId);
 }
-
-function addMove(gameId, playerId, position, symbol) {
-  stmts.addMove.run(gameId, playerId, position, symbol);
-}
-
-function addMessage(roomId, playerId, text) {
-  stmts.addMessage.run(roomId, playerId, text);
-}
-
+function addMove(gameId, playerId, position, symbol) { stmts.addMove.run(gameId, playerId, position, symbol); }
+function addMessage(roomId, playerId, text) { stmts.addMessage.run(roomId, playerId, text); }
 function addWinLoss(winnerId, loserId) {
   if (winnerId) stmts.addWin.run(winnerId);
   if (loserId) stmts.addLoss.run(loserId);
 }
 
 module.exports = {
-  createPlayer,
+  createUser,
+  createGuestUser,
+  authenticateUser,
+  userExists,
+  getUserById,
+  createAuthSession,
+  getUserByAuthToken,
+  revokeAuthToken,
   createRoom,
   joinRoom,
   finishRoom,

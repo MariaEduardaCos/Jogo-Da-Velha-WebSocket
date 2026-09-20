@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Tic-Tac-Toe Multiplayer</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>▦ &nbsp; TIC-TAC-TOE MULTIPLAYER</div>
+    <div class="server-status">AUTENTICAÇÃO DE JOGADOR</div>
+  </header>
+  <main class="auth-wrapper">
+    <section class="card auth-card">
+      <div class="auth-tabs">
+        <button id="tabLogin" class="auth-tab active" type="button">ENTRAR</button>
+        <button id="tabRegister" class="auth-tab" type="button">CRIAR CONTA</button>
+      </div>
+      <p class="tab-account-help">Cada aba do navegador pode usar uma conta diferente sem desconectar as demais.</p>
+
+      <form id="loginForm" class="auth-form">
+        <h1>Entrar no jogo</h1>
+        <p class="helper">Use sua conta para manter vitórias, derrotas e histórico vinculados ao mesmo jogador.</p>
+        <div class="field">
+          <label for="loginEmail">E-mail</label>
+          <input id="loginEmail" class="input" type="email" required autocomplete="email" placeholder="jogador@email.com">
+        </div>
+        <div class="field">
+          <label for="loginPassword">Senha</label>
+          <input id="loginPassword" class="input" type="password" required minlength="6" autocomplete="current-password" placeholder="Sua senha">
+        </div>
+        <button class="btn btn-green full" type="submit">ENTRAR</button>
+      </form>
+
+      <form id="registerForm" class="auth-form hidden">
+        <h1>Criar conta</h1>
+        <p class="helper">O apelido ficará salvo no banco e será usado automaticamente nas salas.</p>
+        <div class="field">
+          <label for="registerNickname">Apelido</label>
+          <input id="registerNickname" class="input" required minlength="3" maxlength="40" autocomplete="nickname" placeholder="Joao_Gamer">
+        </div>
+        <div class="field">
+          <label for="registerEmail">E-mail</label>
+          <input id="registerEmail" class="input" type="email" required autocomplete="email" placeholder="jogador@email.com">
+        </div>
+        <div class="field">
+          <label for="registerPassword">Senha</label>
+          <input id="registerPassword" class="input" type="password" required minlength="6" autocomplete="new-password" placeholder="Mínimo de 6 caracteres">
+        </div>
+        <button class="btn btn-blue full" type="submit">CRIAR CONTA E ENTRAR</button>
+      </form>
+
+      <div class="guest-access">
+        <div class="guest-divider"><span>OU</span></div>
+        <button id="guestBtn" class="btn btn-gray full" type="button">JOGAR COMO VISITANTE</button>
+        <p class="helper guest-help">Visitantes podem usar partida rápida e entrar em salas por código. A única restrição é não poder criar sala privada.</p>
+      </div>
+    </section>
+  </main>
+  <div id="notice" class="notice"></div>
+  <script src="/js/common.js"></script>
+  <script src="/js/login.js"></script>
+</body>
+</html>

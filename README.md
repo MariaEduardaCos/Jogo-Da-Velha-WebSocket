@@ -1,35 +1,16 @@
-# Ws3 — Jogo da Velha Multiplayer em Tempo Real
+# Ws3 — Jogo da Velha Multiplayer com WebSocket
 
-Implementação baseada na atividade prática **Ws3 (UML Completo)**, usando **Node.js + Express + WebSocket (`ws`) + SQLite**.
-
-## Versão 1.0.1 — correção para npm 12 / Node 24
-
-Esta versão já contém no `package.json` a autorização necessária para o script de instalação do `better-sqlite3`:
-
-```json
-"allowScripts": {
-  "better-sqlite3@12.11.1": true
-}
-```
-
-O `better-sqlite3` também foi fixado em `12.11.1` para evitar que uma instalação nova volte para a versão 11.x usada anteriormente.
-
-Além disso, o projeto executa uma verificação automática do SQLite após `npm install`. Quando tudo estiver correto, aparecerá:
-
-```text
-[OK] better-sqlite3 carregado corretamente.
-```
+Versão 1.2.0 do projeto da atividade Ws3.
 
 ## Requisitos
 
-- Node.js 20 ou superior
-- npm
+- Node.js 20 ou superior.
+- npm 12 é suportado.
+- Windows, Linux ou macOS.
 
-Foi testada a configuração visando também **Node.js 24 + npm 12 no Windows x64**.
+A configuração do `better-sqlite3` já está registrada no `package.json` por meio de `allowScripts`, portanto não é necessário aprovar manualmente o script do pacote em uma instalação normal.
 
-## Instalação nova
-
-Extraia o ZIP em uma pasta nova e execute:
+## Instalação
 
 ```bash
 npm install
@@ -38,77 +19,119 @@ npm start
 
 Abra:
 
-- http://localhost:8080/
-- WebSocket: `ws://localhost:8080/tictactoe`
-
-Para testar o multiplayer, abra o site em dois navegadores/abas independentes.
-
-## Se estiver substituindo a versão antiga
-
-Não copie a nova versão por cima de um `node_modules` antigo. Extraia o projeto em uma pasta nova. Se quiser reaproveitar a mesma pasta, remova `node_modules` e `package-lock.json` antes de executar `npm install`.
-
-No PowerShell:
-
-```powershell
-Remove-Item -Recurse -Force node_modules -ErrorAction SilentlyContinue
-Remove-Item -Force package-lock.json -ErrorAction SilentlyContinue
-npm install
-npm start
+```text
+http://localhost:8080
 ```
 
-## Verificação manual do SQLite
+O servidor imprime apenas uma mensagem curta de inicialização, além das mensagens normais do próprio npm.
+
+## WebSocket e HTTP 101
+
+Endpoint único:
+
+```text
+ws://localhost:8080/tictactoe
+```
+
+O upgrade HTTP para WebSocket é tratado explicitamente em `server.js`. Uma conexão WebSocket válida recebe:
+
+```text
+HTTP/1.1 101 Switching Protocols
+```
+
+Para verificar manualmente, deixe `npm start` rodando em um terminal e execute em outro:
+
+```bash
+npm run check:ws101
+```
+
+## Autenticação
+
+Há três formas de acesso:
+
+- Entrar com uma conta cadastrada.
+- Criar uma conta persistente com apelido, e-mail e senha.
+- Jogar como visitante.
+
+O visitante pode usar partida rápida, entrar em salas públicas e entrar em uma sala privada por código. A única restrição funcional do visitante é não poder criar uma sala privada.
+
+## Múltiplas contas em abas do mesmo navegador
+
+Não há mais trava de "uma única aba ativa". Cada aba mantém sua própria autenticação e sua própria sessão de partida em `sessionStorage`.
+
+Assim, é possível usar a Conta A na primeira aba e a Conta B na segunda aba do mesmo Chrome/Edge/Firefox. Uma aba não substitui a autenticação, o código da sala ou o token de reconexão da outra. A página de login também limpa apenas a identidade da própria aba, o que evita que uma aba duplicada herde automaticamente a conta anterior.
+
+A tolerância de reconexão de 30 segundos continua independente para cada jogador/partida.
+
+## Salas
+
+- Conta cadastrada: partida rápida, entrada por código e criação de sala privada.
+- Visitante: partida rápida e entrada por código.
+- Ao criar uma sala privada, o host é enviado para uma tela de espera onde o código de 6 caracteres permanece visível.
+
+## Jogo
+
+- Regras e validações executadas no servidor.
+- Tabuleiro 3x3 responsivo.
+- Cronômetro visível de 15 segundos.
+- Se o tempo chegar a zero, nenhuma casa é marcada e a vez passa ao adversário.
+- Fechamento/perda de conexão mostra W.O. provisório ao adversário e mantém a tolerância de 30 segundos para reconexão.
+- Revanche sem destruir a sala.
+- Placar de sessão.
+
+## Chat
+
+- Mensagens são restritas à sala atual.
+- Mensagens enviadas pelo próprio jogador aparecem à direita.
+- Mensagens recebidas aparecem à esquerda.
+
+## Banco de dados
+
+SQLite com `better-sqlite3`.
+
+Entidades principais:
+
+- `jogador`
+- `auth_session`
+- `sala_jogo`
+- `partida`
+- `jogada`
+- `mensagem_chat`
+
+As versões anteriores do banco são migradas automaticamente para incluir a identificação de usuário visitante.
+
+## Diagnóstico
+
+Verificar o binding do SQLite:
 
 ```bash
 npm run check:sqlite
 ```
 
-Resultado esperado:
+Verificar o handshake HTTP 101, com o servidor em execução:
 
-```text
-[OK] better-sqlite3 carregado corretamente.
+```bash
+npm run check:ws101
 ```
 
-## Estrutura
+Endpoint de saúde:
 
-- `server.js`: servidor HTTP + WebSocket e roteamento de eventos.
-- `src/roomManager.js`: salas, turnos, movimentos, revanche e reconexão.
-- `src/game.js`: regras do tabuleiro e avaliação de vitória/empate.
-- `src/database.js`: persistência SQLite das entidades do ERD.
-- `scripts/verify-sqlite.js`: teste automático do binding nativo do SQLite.
-- `public/tela1-lobby.html`: Lobby.
-- `public/tela2-arena.html`: Arena 3×3 e chat.
-- `public/tela3-gameover.html`: protótipo isolado do modal Game Over.
+```text
+http://localhost:8080/health
+```
 
-## Eventos principais
+Esse endpoint também expõe as métricas de processamento das jogadas sem imprimir mensagens de requisitos no terminal.
 
-Cliente → servidor:
-- `CREATE_ROOM`
-- `QUICK_MATCH`
-- `JOIN_ROOM` (o servidor também aceita o alias `JOIN_GAME` descrito no RF-01)
-- `RESUME_SESSION`
-- `MOVE`
-- `CHAT`
-- `NEW_GAME`
-- `ACCEPT_NEW_GAME`
-- `LEAVE_ROOM`
+## v1.2.1 — múltiplas contas em abas do mesmo navegador
 
-Servidor → cliente:
-- `ROOM_JOINED`
-- `MATCH_STARTED`
-- `BOARD_UPDATE`
-- `INVALID_MOVE`
-- `CHAT_MESSAGE`
-- `GAME_OVER`
-- `NEW_GAME_REQUEST`
-- `NEW_GAME_STARTED`
-- `PLAYER_DISCONNECTED`
-- `PLAYER_RECONNECTED`
-- `LOBBY_UPDATE`
+A autenticação e a sessão da partida são armazenadas em `sessionStorage`, e não em `localStorage`.
+Isso permite usar, por exemplo, a Conta A na primeira aba e a Conta B na segunda aba do mesmo navegador,
+sem uma aba sobrescrever a autenticação ou o código/sessão da outra.
 
-## Autoridade do servidor
+Para testar localmente:
+1. Abra `http://localhost:8080/login.html` em uma aba e entre com a primeira conta.
+2. Abra `http://localhost:8080/login.html` em outra aba e entre com a segunda conta.
+3. A primeira conta pode criar a sala privada e copiar o código.
+4. A segunda conta pode entrar pelo código sem deslogar ou interferir na primeira aba.
 
-O navegador não decide o resultado, não altera o tabuleiro de forma definitiva e não escolhe o turno. Cada `MOVE` é validado no servidor; somente depois do `BOARD_UPDATE` a interface renderiza o novo estado.
-
-## Banco de dados
-
-O arquivo `ws3.sqlite` é criado automaticamente na primeira execução e persiste jogadores convidados, salas, partidas, jogadas e mensagens de chat.
+O controle antigo que obrigava apenas uma aba ativa por navegador foi removido também no servidor. As conexões WebSocket são autenticadas de forma independente; a separação entre as contas e partidas de cada aba é feita pelo token de autenticação e pelo `sessionStorage` daquela aba.
