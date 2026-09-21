@@ -143,3 +143,16 @@ O controle antigo que obrigava apenas uma aba ativa por navegador foi removido t
 - Corrigida a tela de espera de salas públicas e privadas: o indicador animado não interfere mais no texto e as mensagens quebram linha sem ficar escondidas.
 - Mantido o cronômetro de 15 segundos por jogada, porque esse é o tempo especificado nos critérios de aceite da atividade.
 - Mantida separadamente a tolerância de 30 segundos apenas para reconexão após desconexão.
+
+## Subir ao GitHub
+
+Este pacote foi preparado para versionamento no GitHub.
+
+O diretório `node_modules` e os arquivos temporários do SQLite não fazem parte do repositório. Após clonar/baixar o projeto, execute:
+
+```bash
+npm install
+npm start
+```
+
+Não é necessário copiar `node_modules` de outro computador.
