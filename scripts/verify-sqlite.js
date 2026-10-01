@@ -5,7 +5,6 @@ try {
   const db = new Database(':memory:');
   db.prepare('SELECT 1 AS ok').get();
   db.close();
-  console.log('[OK] better-sqlite3 carregado corretamente.');
 } catch (error) {
   console.error('\n[ERRO] O módulo nativo do better-sqlite3 não foi carregado.');
   console.error('O projeto já autoriza o script de instalação do better-sqlite3 no package.json.');
